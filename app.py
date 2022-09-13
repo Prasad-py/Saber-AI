@@ -84,8 +84,19 @@ def socialMedia():
         query = request.form['socialMedia']
         print(query)
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+        # prompt = 'AI Suggestions for {} are:'.format(query)
+        response = openai.Completion.create(
+                engine = GPT_Engine,
+                prompt=f"Subject of the Advertisement:\n{query}\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
+                temperature=0.7,
+                max_tokens=500,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+            )
+        openAIAnswer = response['choices'][0]['text']
+        print(openAIAnswer)
+        
 
     return render_template('social-media.html', **locals())
 
@@ -97,13 +108,21 @@ def businessPitch():
         query = request.form['businessPitch']
         print(query)
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-
+        # prompt = 'AI Suggestions for {} are:'.format(query)
+        response = openai.Completion.create(
+                engine = GPT_Engine,
+                prompt=f"Subject of the Advertisement:\n{query}\nWrite a clever Advertisement on the given subject:\nAd:\n",
+                temperature=0.7,
+                max_tokens=500,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+            )
+        openAIAnswer = response['choices'][0]['text']
     return render_template('business-pitch.html', **locals())
 
 
-@app.route('/video-ideas', methods=["GET", "POST"])
+@app.route('/email-gen', methods=["GET", "POST"])
 def videoIdeas():
 
     if request.method == 'POST':
@@ -137,7 +156,7 @@ def videoIdeas():
         else:
             response = openai.Completion.create(
                 engine=GPT_Engine,
-                prompt=f"Previous Email:\n{prev_email}\nBullet Points:\n{bullet_points}\nWrite a reply to the previous email based on the bullet point above:\nEmail:\n",
+                prompt=f"Previous Email:\n{prev_email}\nBullet Points:\n{bullet_points}\nWrite a reply to the previous email based on the bullet points above:\nEmail:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
@@ -154,27 +173,32 @@ def videoIdeas():
         #                     presence_penalty=0
         #                     )
         openAIAnswer = response['choices'][0]['text']
-    return render_template('video-ideas.html', **locals())
+        print(openAIAnswer)
+        # openAIAnswer = openAIAnswer.replace("\n","<br>")
+    return render_template('email-gen.html', **locals())
 
 
-@app.route('/video-description', methods=["GET", "POST"])
+@app.route('/blog-article', methods=["GET", "POST"])
 def videoDescription():
 
     if request.method == 'POST':
-        query = request.form['videoDescription']
-        print(query)
+        title = request.form['title']
+        keywords = request.form['keywords']
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = openai.Completion.create(
+        # prompt = 'AI Suggestions for {} are:'.format(query)
+        response = openai.Completion.create(
                             engine=GPT_Engine,
-                            prompt="Generate blog topics on: {}. \n \n 1.  ".format(prompt1),
+                            prompt=f"Title:\n{title}\nKeywords:\n{keywords}\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
                             temperature=0.5,
                             max_tokens=200,
                             top_p=1,
                             frequency_penalty=0,
                             presence_penalty=0
                             )
-    return render_template('video-description.html', **locals())
+        openAIAnswer = response['choices'][0]['text']
+        print(openAIAnswer)
+        openAIAnswer = openAIAnswer.replace("\n","<br>")
+    return render_template('blog-article.html', **locals())
 
 
 

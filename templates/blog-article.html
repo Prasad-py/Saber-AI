@@ -1,0 +1,44 @@
+{% extends 'includes/layout.html' %}
+
+
+{% block body %}
+<main class="container">
+  <br>
+  <div class="bg-light p-5 rounded mt-5">
+    <h1>Blog Article Generation</h1>
+    <p class="lead">
+      Generate professional article and blogs by giving outline.
+      Give keywords for good fit with Search Engine Optimization.    </p>
+
+    <h2>Enter the title of your Article.</h2>
+
+    <form class="" action="/blog-article" method="post">
+
+      <div class="mb-3">
+        <label class="form-label">Article Title</label>
+        <input type="text" class="form-control" name="title" placeholder="eg. Top 10 CRM Software">
+        <div class="form-text">Enter the title. Be as descriptive as possible.</div>
+
+        <label class="form-label">Keywords</label>
+        <input type="text" class="form-control" name="keywords" placeholder="eg. CRM, Manager, Customer">
+        <div class="form-text">Give keywords that are better searchable. </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg"> Generate Article</button>
+
+    </form>
+  </div>
+
+
+  <div class="p-3 rounded">
+    <div class="row">
+      <div class="col-lg-12">
+        <h3 class="text-primary">{{prompt}}</h3>
+        <!-- {{openAIAnswer}} -->
+        <button onclick="copyText()">Copy</button>
+      </div>
+      
+    </div>
+  </div>
+</main>
+{% endblock %}

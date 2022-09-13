@@ -4,15 +4,16 @@
 {% block body %}
 <main class="container">
   <br>
-  <div class="bg-light p-5 rounded mt-5">
+  <div style="background:#E0E0E0" class="p-5 rounded mt-5">
     <h1> Email Generation </h1>
     <p class="lead">
-      The Saber writing tool will allow you to generate full fledged emails out of bullet points using GPT3's advance text generation AI.
+      The Saber writing tool will allow you to generate full fledged emails out of bullet points using GPT3's advance
+      text generation AI.
     </p>
 
     <!-- <h2>Enter the topic you would like to discuss.</h2> -->
 
-    <form class="" action="/video-ideas" method="post">
+    <form class="" action="/email-gen" method="post">
 
       <div class="mb-3">
         <label class="form-label">Enter Previous Email</label>
@@ -29,23 +30,29 @@
   </div>
 
 
-  <div class="p-3 rounded">
+  <div class="p-3 rounded-lg">
     <div class="row">
       <div class="col-lg-12">
         <h3 class="text-primary">{{prompt}}</h3>
-        <p id="answer" class="lead">{{openAIAnswer}}</p>
-        <button onclick="copyText()">Copy</button>
+
+
         <script>
           function copyText() {
-                
-              var Text = document.getElementById("textbox");
-              Text.select();
-              /* Copy text into clipboard */
-              navigator.clipboard.writeText
-                  (Text.value);
+
+            var Text = document.getElementById("answer");
+            Text.select();
+            /* Copy text into clipboard */
+            navigator.clipboard.writeText
+              (Text.value);
+            function extractBreaks(text) {
+              let parser = new DOMParser();
+              const doc = parser.parseFromString(text, 'text/html');
+              return doc;
+            }
           }
         </script>
-
+        <p id="answer" class="lead">extractBreaks(openAIAnswer)</p>
+        <button onclick="copyText()">Copy</button>
       </div>
     </div>
   </div>
