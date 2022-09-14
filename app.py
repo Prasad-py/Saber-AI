@@ -174,7 +174,8 @@ def videoIdeas():
         #                     )
         openAIAnswer = response['choices'][0]['text']
         print(openAIAnswer)
-        # openAIAnswer = openAIAnswer.replace("\n","<br>")
+        # openAIAnswer = openAIAnswer.replace("\n","<br>.innerHTML")
+        # openAIAnswer = openAIAnswer.replace(/\r\n/g, "<br />");
     return render_template('email-gen.html', **locals())
 
 
