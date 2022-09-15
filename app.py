@@ -123,16 +123,14 @@ def businessPitch():
 
 
 @app.route('/email-gen', methods=["GET", "POST"])
-def videoIdeas():
+def prevEmail():
 
     if request.method == 'POST':
-        prev_email = request.form['videoIdeas']
+        prev_email = request.form["prev_email"]
         bullet_points = request.form['bullet_points']
-        # print("here")
         print(prev_email)
         print(bullet_points)
 
-        # prompt1 = query
         if prev_email == "":
             response = openai.Completion.create(
                 engine = GPT_Engine,
@@ -173,25 +171,37 @@ def videoIdeas():
         #                     presence_penalty=0
         #                     )
         openAIAnswer = response['choices'][0]['text']
+
         print(openAIAnswer)
-        # openAIAnswer = openAIAnswer.replace("\n","<br>.innerHTML")
-        # openAIAnswer = openAIAnswer.replace(/\r\n/g, "<br />");
+        openAIAnswer = openAIAnswer.replace("\n","<br>")
+        print(openAIAnswer[:4])
+        if openAIAnswer[:4] == "<br>":
+            openAIAnswer = openAIAnswer[4:]
+            print("true")
+        print(openAIAnswer)
     return render_template('email-gen.html', **locals())
 
+# TITLE = ""
+# KEYWORDS = ""
 
 @app.route('/blog-article', methods=["GET", "POST"])
 def videoDescription():
 
     if request.method == 'POST':
+        # Title = TITLE
+        # KeyWords = KEYWORDS
         title = request.form['title']
         keywords = request.form['keywords']
-
+        # title = title1 if title1 else Title
+        # keywords = keywords1 if keywords1 else KeyWords
+        # TITLE = title
+        # KEYWORDS = keywords
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                             engine=GPT_Engine,
                             prompt=f"Title:\n{title}\nKeywords:\n{keywords}\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
                             temperature=0.5,
-                            max_tokens=200,
+                            max_tokens=700,
                             top_p=1,
                             frequency_penalty=0,
                             presence_penalty=0
@@ -199,6 +209,11 @@ def videoDescription():
         openAIAnswer = response['choices'][0]['text']
         print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
+        print(openAIAnswer[:4])
+        if openAIAnswer[:4] == "<br>":
+            openAIAnswer = openAIAnswer[4:]
+            print("true")
+        print(openAIAnswer)
     return render_template('blog-article.html', **locals())
 
 
