@@ -1,0 +1,47 @@
+{% extends 'includes/layout.html' %}
+
+
+{% block body %}
+<main class="container">
+  <br>
+  <div style="background:#E0E0E0" class="p-5 rounded mt-5">
+    <h1> 🖥 Code Generation </h1>
+    <p class="lead">
+      Generate Code by giving the usecase
+    </p>
+
+    <h2>What is your code's purpose?</h2>
+
+    <form class="" action="/code-gen" method="post">
+
+      <div class="mb-3">
+        <label class="form-label">Describe the usecase of your code:</label>
+        <input type="text" class="form-control" name="purpose" placeholder="eg. Swap 2 variables">
+        <div class="form-text"></div>
+        <label class="form-label">Programming language:</label>
+        <input type="text" class="form-control" name="language" placeholder="eg. Python">
+        <div class="form-text"></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg"> Generate Code</button>
+
+    </form>
+  </div>
+
+
+  <div class="p-3 rounded">
+    <div class="row">
+      <div class="col-lg-12">
+        <h3 class="text-primary">{{prompt}}</h3>
+        <p id="answer" class="lead">
+          {% autoescape off %}
+          {{ openAIAnswer }}
+	        {% endautoescape %}
+        </p>
+        <button onclick="copyText()">Copy</button>
+
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

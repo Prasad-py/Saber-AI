@@ -53,12 +53,25 @@ def jobDescription():
 def tweetIdeas():
 
     if request.method == 'POST':
-        query = request.form['tweetIdeas']
-        print(query)
+        title = request.form['tweetIdeas']
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-
+        response = openai.Completion.create(
+                            engine=GPT_Engine,
+                            prompt=f"Description:\n{title}\nWrite a long and clever tweet for the above decription:\nTweet:\n",
+                            temperature=0.5,
+                            max_tokens=300,
+                            top_p=1,
+                            frequency_penalty=0,
+                            presence_penalty=0
+                            )
+        openAIAnswer = response['choices'][0]['text']
+        print(openAIAnswer)
+        openAIAnswer = openAIAnswer.replace("\n","<br>")
+        print(openAIAnswer[:4])
+        if openAIAnswer[:4] == "<br>":
+            openAIAnswer = openAIAnswer[4:]
+            print("true")
+        print(openAIAnswer)
     return render_template('tweet-ideas.html', **locals())
 
 
@@ -67,12 +80,26 @@ def tweetIdeas():
 def coldEmails():
 
     if request.method == 'POST':
-        query = request.form['coldEmails']
-        print(query)
+        company_name = request.form['companyName']
+        title = request.form['coldEmails']
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
-
+        response = openai.Completion.create(
+                            engine=GPT_Engine,
+                            prompt=f"Services:\n{title}\nA company named {company_name} provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
+                            temperature=0.5,
+                            max_tokens=300,
+                            top_p=1,
+                            frequency_penalty=0,
+                            presence_penalty=0
+                            )
+        openAIAnswer = response['choices'][0]['text']
+        print(openAIAnswer)
+        openAIAnswer = openAIAnswer.replace("\n","<br>")
+        print(openAIAnswer[:4])
+        if openAIAnswer[:4] == "<br>":
+            openAIAnswer = openAIAnswer[4:]
+            print("true")
+        print(openAIAnswer)
     return render_template('cold-emails.html', **locals())
 
 
@@ -101,17 +128,18 @@ def socialMedia():
     return render_template('social-media.html', **locals())
 
 
-@app.route('/business-pitch', methods=["GET", "POST"])
+@app.route('/code-gen', methods=["GET", "POST"])
 def businessPitch():
 
     if request.method == 'POST':
-        query = request.form['businessPitch']
-        print(query)
+        purpose = request.form['purpose']
+        language = request.form['language']
+        # print(query)
 
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                 engine = GPT_Engine,
-                prompt=f"Subject of the Advertisement:\n{query}\nWrite a clever Advertisement on the given subject:\nAd:\n",
+                prompt=f"Usecase of the Code:\n{purpose}\nWrite a {language} function for the above usecase:\nCode:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
@@ -119,7 +147,11 @@ def businessPitch():
                 presence_penalty=0
             )
         openAIAnswer = response['choices'][0]['text']
-    return render_template('business-pitch.html', **locals())
+        openAIAnswer = openAIAnswer.replace("\n","<br>")
+
+        if openAIAnswer[:4] == "<br>":
+            openAIAnswer = openAIAnswer[4:]
+    return render_template('code-gen.html', **locals())
 
 
 @app.route('/email-gen', methods=["GET", "POST"])
@@ -172,13 +204,13 @@ def prevEmail():
         #                     )
         openAIAnswer = response['choices'][0]['text']
 
-        print(openAIAnswer)
+
         openAIAnswer = openAIAnswer.replace("\n","<br>")
-        print(openAIAnswer[:4])
+
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]
-            print("true")
-        print(openAIAnswer)
+
+
     return render_template('email-gen.html', **locals())
 
 # TITLE = ""
@@ -207,23 +239,14 @@ def videoDescription():
                             presence_penalty=0
                             )
         openAIAnswer = response['choices'][0]['text']
-        print(openAIAnswer)
+        # print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
-        print(openAIAnswer[:4])
+        # print(openAIAnswer[:4])
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]
             print("true")
-        print(openAIAnswer)
+        # print(openAIAnswer)
     return render_template('blog-article.html', **locals())
-
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port='8888', debug=True)
