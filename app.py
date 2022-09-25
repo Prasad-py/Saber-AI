@@ -57,7 +57,7 @@ def tweetIdeas():
 
         response = openai.Completion.create(
                             engine=GPT_Engine,
-                            prompt=f"Description:\n{title}\nWrite a long and clever tweet for the above decription:\nTweet:\n",
+                            prompt="Description:\n"+title+"\nWrite a long and clever tweet for the above decription:\nTweet:\n",
                             temperature=0.5,
                             max_tokens=300,
                             top_p=1,
@@ -85,7 +85,7 @@ def coldEmails():
 
         response = openai.Completion.create(
                             engine=GPT_Engine,
-                            prompt=f"Services:\n{title}\nA company named {company_name} provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
+                            prompt="Services:\n"+title+"\nA company named "+company_name+" provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
                             temperature=0.5,
                             max_tokens=300,
                             top_p=1,
@@ -114,7 +114,7 @@ def socialMedia():
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                 engine = GPT_Engine,
-                prompt=f"Subject of the Advertisement:\n{query}\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
+                prompt="Subject of the Advertisement:\n"+query+"\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
@@ -139,7 +139,7 @@ def businessPitch():
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                 engine = GPT_Engine,
-                prompt=f"Usecase of the Code:\n{purpose}\nWrite a {language} function for the above usecase:\nCode:\n",
+                prompt="Usecase of the Code:\n"+purpose+"\nWrite a "+language+" function for the above usecase:\nCode:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
