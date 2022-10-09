@@ -166,7 +166,7 @@ def prevEmail():
         if prev_email == "":
             response = openai.Completion.create(
                 engine = GPT_Engine,
-                prompt=f"Bullet Points:\n{bullet_points}\nWrite a reply email based on the bullet point above:\nEmail:\n",
+                prompt="Bullet Points:\n"+bullet_points+"\nWrite a reply email based on the bullet point above:\nEmail:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
@@ -176,7 +176,7 @@ def prevEmail():
         elif bullet_points =="":
             response = openai.Completion.create(
                 engine=GPT_Engine,
-                prompt=f"Previous Email:\n{prev_email}\nWrite a suitable reply to the above email:\nEmail:\n",
+                prompt="Previous Email:\n{prev_email}\nWrite a suitable reply to the above email:\nEmail:\n",
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
