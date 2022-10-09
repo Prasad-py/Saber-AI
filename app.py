@@ -1,7 +1,15 @@
 from urllib import response
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import config
 import openai
+import os
+import stripe
+
+stripe_keys = {
+    "secret_key": os.environ.get('STRIPE_SECRET_KEY'),
+    "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
+}
+stripe.api_key = stripe_keys["secret_key"]
 
 openai.api_key = config.OPENAI_API_KEY
 GPT_Engine = "text-davinci-002"
