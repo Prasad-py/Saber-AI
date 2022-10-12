@@ -1,13 +1,14 @@
 from urllib import response
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, session
 import config
 import openai
 import os
 import stripe
+import pyrebase
 
 stripe_keys = {
-    "secret_key": "sk_test_51LqwgtSA83qY3supEUFKZyAD3KjDxAgHuMBMiei9ToodGeveL28pLw2qiG8wBqUUGSJElz3lZvWcPhjmcapqBXHv00YrK88LSC",#os.environ.get('STRIPE_SECRET_KEY'),
-    "publishable_key": "pk_test_51LqwgtSA83qY3supHuaypM2a8vIyaOAPK0JndObnVnGjYuWFib7x1GGDtW0ywVzougcApVx8zoXykiTpqIQZ8imN00IylZ7CVU",#os.environ.get('STRIPE_PUBLISHABLE_KEY'),
+    "secret_key": os.environ.get('STRIPE_SECRET_KEY'),
+    "publishable_key": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
 }
 stripe.api_key = stripe_keys["secret_key"]
 
@@ -299,6 +300,48 @@ def success():
 @app.route("/cancelled")
 def cancelled():
     return render_template("cancelled.html")
+
+firebaseConfig = {
+  'apiKey': "FIREBASE_API_KEY",
+  'authDomain': "sabre-ai-test.firebaseapp.com",
+  'projectId': "sabre-ai-test",
+  'storageBucket': "sabre-ai-test.appspot.com",
+  'messagingSenderId': "524387029400",
+  'appId': "1:524387029400:web:37585c2c0cb59fde9c5bed",
+  'databaseURL': "https://sabre-ai-test-default-rtdb.firebaseio.com/",
+}
+
+firebase = pyrebase.initialize_app(firebaseConfig);
+auth = firebase.auth()
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        try:
+            user = auth.sign_in_with_email_and_password(email, password)
+            return redirect('index.html')
+        except:
+            return render_template('login.html', error="Invalid Credentials")
+    return render_template('login.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        try:
+            user = auth.create_user_with_email_and_password(email, password)
+            return redirect('login.html')
+        except:
+            return render_template('signup.html', error="Invalid Credentials")
+    return render_template('signup.html')
+
+@app.route('/logout')
+def logout():
+    auth.current_user = None
+    return redirect('login.html')
 
 
 if __name__ == '__main__':
