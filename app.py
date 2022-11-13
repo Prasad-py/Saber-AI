@@ -1,10 +1,21 @@
+from distutils.log import error
 from urllib import response
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_mail import Mail, Message
 import config
 import openai
+import pyrebase
+from flask_login import login_user, current_user, logout_user, login_required,LoginManager
 
 openai.api_key = config.OPENAI_API_KEY
 GPT_Engine = "text-davinci-002"
+
+# firebase configuration
+firebase = pyrebase.initialize_app(config.FIREBASE_CONFIG)
+auth = firebase.auth()
+db = firebase.database()
+
+
 
 def page_not_found(e):
   return render_template('404.html'), 404
@@ -14,11 +25,88 @@ app = Flask(__name__)
 app.config.from_object(config.config['development'])
 app.register_error_handler(404, page_not_found)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
 
+app.config['MAIL_SERVER']='smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USERNAME'] = 'dummyaditya22@gmail.com'
+app.config['MAIL_PASSWORD'] = 'xadafnzuxtlugpgq'
+app.config['MAIL_USE_TLS'] = True
+# app.config['MAIL_USE_SSL'] = True
+mail = Mail(app)
+
+@login_required
 @app.route('/', methods=["GET", "POST"])
 def index():
+    print(current_user.is_authenticated)
     return render_template('index.html', **locals())
 
+
+@app.route('/signup', methods = ["GET","POST"])
+def signup():
+
+    if request.method == "POST":
+        
+        email = request.form["email"]
+        password = request.form["password"]
+
+        if email is None or password is None or len(password)<8:
+            flash("Please fill all the details")
+            return redirect("/signup")
+        # try:
+        user = auth.create_user_with_email_and_password(email, password)
+        
+        link = auth.send_email_verification(user['idToken'])
+        print("hooooooooooooooo", link)
+        msg = Message(
+                        'Hello',
+                        sender ='dummyaditya22@gmail.com',
+                        recipients = [email]
+                    )
+        msg.body = f"Hello This is the Email Verification link : {link}"
+        print("---------------------------- idhar",msg)
+        mail.send(msg)
+        print("---------------------------- MSG",mail)
+        return redirect(url_for('login'))
+        # except :
+        #     flash("email taken")
+        #     return render_template("signup.html")  
+
+    return render_template('signup.html')
+
+
+#login route
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+      #get the request data
+      email = request.form["email"]
+      password = request.form["password"]
+      try:
+        #login the user
+        user = auth.sign_in_with_email_and_password(email, password)
+        #set the session
+        login_user(user)
+        return redirect("/")  
+      
+      except:
+        return render_template("login.html")  
+
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    return render_template("login.html")
+
+#logout route
+@app.route("/logout")
+def logout():
+    #remove the token setting the user to None
+    auth.current_user = None
+    #also remove the session
+    #session['usr'] = ""
+    #session["email"] = ""
+    session.clear()
+    return redirect("/")
 
 
 @app.route('/product-description', methods=["GET", "POST"])
