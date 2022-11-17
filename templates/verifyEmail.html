@@ -1,0 +1,19 @@
+<main class="container" style="margin:100px ;">
+  <form method="POST" action="/verifyEmail">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <h2>Verify Email</h2>
+    <div class="form-control">
+      <label for="otp">OTP:</label>
+      <input type="number" name="otp" placeholder="Enter OTP">
+    </div>
+    <input type="submit" value="Submit">
+  </form>
+</main>

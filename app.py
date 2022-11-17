@@ -6,6 +6,7 @@ import config
 import openai
 import pyrebase
 from flask_login import login_user, current_user, logout_user, login_required,LoginManager
+import random
 
 openai.api_key = config.OPENAI_API_KEY
 GPT_Engine = "text-davinci-002"
@@ -36,7 +37,12 @@ app.config['MAIL_USE_TLS'] = True
 # app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
 
-@login_required
+
+def generate_code():
+    code = random.choice(range(100000, 999999))  # generating 6 digit random code
+    return code
+
+
 @app.route('/', methods=["GET", "POST"])
 def index():
     print(current_user.is_authenticated)
@@ -56,25 +62,35 @@ def signup():
             return redirect("/signup")
         # try:
         user = auth.create_user_with_email_and_password(email, password)
-        
-        link = auth.send_email_verification(user['idToken'])
-        print("hooooooooooooooo", link)
+        db.child("users").child(email).child({"isVerified" : False})
+        otp = generate_code()
+        db.child("users").child(email).child({"otp" : otp})
+        session["email"] = email
+        # link = auth.send_email_verification(user['idToken'])
         msg = Message(
                         'Hello',
                         sender ='dummyaditya22@gmail.com',
                         recipients = [email]
                     )
-        msg.body = f"Hello This is the Email Verification link : {link}"
-        print("---------------------------- idhar",msg)
+        msg.body = f"Hello This is the Email Verification link : {otp}"
         mail.send(msg)
-        print("---------------------------- MSG",mail)
-        return redirect(url_for('login'))
+        return redirect(url_for('verifyEmail'))
         # except :
         #     flash("email taken")
         #     return render_template("signup.html")  
 
     return render_template('signup.html')
 
+
+@app.route("/verifyEmail",methods=["GET","POST"])
+def verifyEmail():
+    if request.method == "POST":
+        otp = request.form["otp"]
+        # otp2 = db.child("users").child(session['email'])})
+    print(session['email'])
+    users = db.child("users").get()
+    print(users)
+    return render_template("verifyEmail.html")
 
 #login route
 @app.route("/login", methods=["GET", "POST"])
@@ -85,9 +101,14 @@ def login():
       password = request.form["password"]
       try:
         #login the user
+        print("hiiiiiiiiiiii")
         user = auth.sign_in_with_email_and_password(email, password)
         #set the session
-        login_user(user)
+        user_id = user['idToken']
+        user_email = email
+        session['usr'] = user_id
+        session["email"] = user_email
+        print("user",user)
         return redirect("/")  
       
       except:
