@@ -45,12 +45,20 @@ def generate_code():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    print(current_user.is_authenticated)
-    return render_template('index.html', **locals())
+    print(session.get('isVerified'))
+    if session.get("isVerified"):
+        if session.get('isVerified') != True:
+            return redirect('login')
+        else:
+            return render_template('index.html', **locals())
+    return redirect('login')
 
 
 @app.route('/signup', methods = ["GET","POST"])
 def signup():
+
+    if session.get('email'):
+        return redirect('/')
 
     if request.method == "POST":
         
@@ -60,62 +68,94 @@ def signup():
         if email is None or password is None or len(password)<8:
             flash("Please fill all the details")
             return redirect("/signup")
-        # try:
-        user = auth.create_user_with_email_and_password(email, password)
-        db.child("users").child(email).child({"isVerified" : False})
-        otp = generate_code()
-        db.child("users").child(email).child({"otp" : otp})
-        session["email"] = email
-        # link = auth.send_email_verification(user['idToken'])
-        msg = Message(
-                        'Hello',
-                        sender ='dummyaditya22@gmail.com',
-                        recipients = [email]
-                    )
-        msg.body = f"Hello This is the Email Verification link : {otp}"
-        mail.send(msg)
-        return redirect(url_for('verifyEmail'))
-        # except :
-        #     flash("email taken")
-        #     return render_template("signup.html")  
+        try:
+            otp = generate_code()
+            
+            user = auth.create_user_with_email_and_password(email, password)
+
+            data = user
+            data.update({"isVerified" : False,'otp': otp})
+
+            db.child("users").push(data)
+
+            print("token=",user['idToken'])
+            print("user=",data)
+            
+            session["email"] = email
+
+            msg = Message(
+                            'Hello',
+                            sender ='dummyaditya22@gmail.com',
+                            recipients = [email]
+                        )
+            msg.body = f"Hello This is the Email Verification link : {otp}"
+            mail.send(msg)
+            return redirect(url_for('verifyEmail'))
+        except :
+            flash("email taken")
+            return render_template("signup.html")  
 
     return render_template('signup.html')
 
 
 @app.route("/verifyEmail",methods=["GET","POST"])
 def verifyEmail():
+
+    if session.get('email') == None or session.get('isVerified'):
+        return redirect('login')
+
+    users = db.child("users").get().val()
     if request.method == "POST":
         otp = request.form["otp"]
-        # otp2 = db.child("users").child(session['email'])})
-    print(session['email'])
-    users = db.child("users").get()
-    print(users)
+    
+        for key, value in users.items():
+            if value['email'] == session['email']:
+                print(type(otp))
+                print(type(value['otp']))
+                if int(otp) == int(value['otp']):
+                    db.child("users").child(key).update({'isVerified':True,'otp':''})
+                    session.clear()
+                    return redirect('login')
+                else:
+                    return redirect('verifyEmail')
+
     return render_template("verifyEmail.html")
 
 #login route
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
+    if session.get("isVerified") and session.get('isVerified')!= True:
+        return redirect("verifyEmail")
+
+    if session.get('email'):
+        return redirect('/')
+
     if request.method == "POST":
-      #get the request data
+      
       email = request.form["email"]
       password = request.form["password"]
+
       try:
-        #login the user
-        print("hiiiiiiiiiiii")
+        
         user = auth.sign_in_with_email_and_password(email, password)
-        #set the session
-        user_id = user['idToken']
-        user_email = email
-        session['usr'] = user_id
-        session["email"] = user_email
-        print("user",user)
-        return redirect("/")  
+
+        users = db.child("users").get().val()
+        for key, value in users.items():
+            if value['email'] == user['email']:
+                db_user = value
+                #set the session
+                user_id = user['idToken']
+                user_email = email
+                session['usr'] = user_id
+                session["email"] = user_email
+                session['isVerified'] = value['isVerified']
+                print("user",db_user)
+                return redirect("/")  
       
       except:
         return render_template("login.html")  
 
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
     return render_template("login.html")
 
 #logout route
@@ -127,11 +167,14 @@ def logout():
     #session['usr'] = ""
     #session["email"] = ""
     session.clear()
-    return redirect("/")
+    return redirect("/login")
 
 
 @app.route('/product-description', methods=["GET", "POST"])
 def productDescription():
+
+    if session.get("isVerified") and session.get('isVerified') != True:
+        return redirect('login')
 
     if request.method == 'POST':
         query = request.form['productDescription']
@@ -147,6 +190,9 @@ def productDescription():
 @app.route('/job-description', methods=["GET", "POST"])
 def jobDescription():
 
+    if session.get('email') is None:
+        return redirect('login')
+
     if request.method == 'POST':
         query = request.form['jobDescription']
         print(query)
@@ -160,6 +206,9 @@ def jobDescription():
 
 @app.route('/tweet-ideas', methods=["GET", "POST"])
 def tweetIdeas():
+
+    if session.get('email') is None:
+        return redirect('login')
 
     if request.method == 'POST':
         title = request.form['tweetIdeas']
@@ -187,6 +236,9 @@ def tweetIdeas():
 
 @app.route('/cold-emails', methods=["GET", "POST"])
 def coldEmails():
+
+    if session.get('email') is None:
+        return redirect('login')
 
     if request.method == 'POST':
         company_name = request.form['companyName']
@@ -216,6 +268,9 @@ def coldEmails():
 @app.route('/social-media', methods=["GET", "POST"])
 def socialMedia():
 
+    if session.get('email') is None:
+        return redirect('login')
+
     if request.method == 'POST':
         query = request.form['socialMedia']
         print(query)
@@ -239,6 +294,9 @@ def socialMedia():
 
 @app.route('/code-gen', methods=["GET", "POST"])
 def businessPitch():
+
+    if session.get('email') is None:
+        return redirect('login')
 
     if request.method == 'POST':
         purpose = request.form['purpose']
@@ -265,6 +323,9 @@ def businessPitch():
 
 @app.route('/email-gen', methods=["GET", "POST"])
 def prevEmail():
+
+    if session.get('email') is None:
+        return redirect('login')
 
     if request.method == 'POST':
         prev_email = request.form["prev_email"]
@@ -327,6 +388,9 @@ def prevEmail():
 
 @app.route('/blog-article', methods=["GET", "POST"])
 def videoDescription():
+
+    if session.get('email') is None:
+        return redirect('login')
 
     if request.method == 'POST':
         # Title = TITLE
