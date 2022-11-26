@@ -19,6 +19,7 @@ OPENAI_API_KEY = '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'
 FIREBASE_CONFIG = {
     'apiKey': "AIzaSyAxIW3tbaUEnmvqV93rqyQxA2xEnpH8Z2k",
     'authDomain': "saberdemo-6e885.firebaseapp.com",
+    'databaseURL': "https://saberdemo-6e885-default-rtdb.firebaseio.com",
     'projectId': "saberdemo-6e885",
     'storageBucket': "saberdemo-6e885.appspot.com",
     'messagingSenderId': "221117736160",
