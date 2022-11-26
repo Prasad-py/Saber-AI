@@ -24,5 +24,7 @@ FIREBASE_CONFIG = {
     'messagingSenderId': "221117736160",
     'appId': "1:221117736160:web:67edce645aab1f37559c85",
     'measurementId': "G-N6C3RD35G1",
-    'databaseURL' : ''
+    'databaseURL' : 'https://saberdemo-6e885.firebaseio.com/'
 }
+
+MONGO_URL = 'mongodb://localhost:27017'
