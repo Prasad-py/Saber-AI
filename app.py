@@ -42,6 +42,12 @@ def generate_code():
     code = random.choice(range(100000, 999999))  # generating 6 digit random code
     return code
 
+def returns_estimated_number_of_tokens_used(text_input):
+    number_of_words_in_input = len(text_input.split())
+    total_words_processed_by_gpt = 4 * number_of_words_in_input
+    tokens_used_up = total_words_processed_by_gpt/2.5
+    return tokens_used_up
+
 
 @app.route('/', methods=["GET", "POST"])
 def index():
@@ -396,6 +402,9 @@ def prevEmail():
         #                     presence_penalty=0
         #                     )
         openAIAnswer = response['choices'][0]['text']
+
+        # tokens_used = response['usage']['total_tokens']
+
 
 
         openAIAnswer = openAIAnswer.replace("\n","<br>")
