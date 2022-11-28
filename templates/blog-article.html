@@ -11,7 +11,15 @@
       Give keywords for good fit with Search Engine Optimization.    </p>
 
     <h2>Enter the title of your Article.</h2>
-
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %} 
     <form class="" action="/blog-article" method="post">
 
       <div class="mb-3">

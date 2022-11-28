@@ -9,7 +9,15 @@
     <p class="lead">
     This is perfect for marketing agents or companies who need fresh ideas daily on cold email content that is created by AI technology.
     </p>
-
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <h2>Enter the services your company provides</h2>
 
     <form class="" action="/cold-emails" method="post">

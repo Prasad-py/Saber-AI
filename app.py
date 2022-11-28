@@ -4,10 +4,15 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_mail import Mail, Message
 import config
 import openai
-import pyrebase
 import random
 import pymongo
 import bcrypt
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from bson import json_util
+import json
+from bson.objectid import ObjectId
+
 
 openai.api_key = config.OPENAI_API_KEY
 GPT_Engine = "text-davinci-002"
@@ -16,6 +21,7 @@ GPT_Engine = "text-davinci-002"
 client = pymongo.MongoClient(config.MONGO_URL)
 db = client.get_database('saberAI')
 users = db.users
+user_tokens = db.user_tokens
 
 
 
@@ -48,14 +54,18 @@ def returns_estimated_number_of_tokens_used(text_input):
     tokens_used_up = total_words_processed_by_gpt/2.5
     return tokens_used_up
 
+def parse_json(data):
+    return json.loads(json_util.dumps(data))
+
 
 @app.route('/', methods=["GET", "POST"])
 def index():
     if "email" not in session: 
         return redirect("/login")
-    
+
     if session["isVerified"] == False:
         return redirect("/verifyEmail")
+
     return render_template('index.html', **locals())
 
 
@@ -89,13 +99,18 @@ def signup():
         otp = generate_code()
         user_input = {"email": email, "password": hashedPassword, "isVerified": False, "otp": otp}
         users.insert_one(user_input)
+        user = users.find_one({"email" : email})
+        date_after_month = datetime.today()+ relativedelta(months=1)
+        token_input = {"user_id": user["_id"],"tokens": 1000,"expiry":date_after_month.strftime('%d/%m/%Y'),"plan": "free"}
+        user_tokens.insert_one(token_input)
 
         msg = Message(
-                        'Hello',
+                        'OTP Verification for SaberAI',
                         sender ='dummyaditya22@gmail.com',
                         recipients = [email]
                     )
-        msg.body = f"Hello This is the Email Verification link : {otp}"
+                    
+        msg.body = f" Hello {email},\n This mail is for verifying your account with Saber Intelligence. Your account verification OTP is {otp}.\n If this was not you please get in touch with our contact at www.saber-ai.com.\n Thank You for signing up with Saber Intelligence.\n Saber Intelligence Pvt Ltd" 
         mail.send(msg)
         return redirect(url_for('verifyEmail'))
         # except :
@@ -154,6 +169,7 @@ def login():
             if bcrypt.checkpw(password.encode('utf-8'), passwordcheck):
                 session["email"] = email_val
                 session['isVerified'] = isVerified
+                session["userId"] = str(email_found["_id"])
                 if isVerified is False:
                     return redirect('/verifyEmail')
                 return redirect('/')
@@ -229,7 +245,11 @@ def tweetIdeas():
    
     if request.method == 'POST':
         title = request.form['tweetIdeas']
-
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+        estimated_number_of_tokens = returns_estimated_number_of_tokens_used(title)
+        if estimated_number_of_tokens > tokens["tokens"] : 
+            flash("You don't have sufficient tokens!!")
+            return redirect("/tweet-ideas")
         response = openai.Completion.create(
                             engine=GPT_Engine,
                             prompt="Description:\n"+title+"\nWrite a long and clever tweet for the above decription:\nTweet:\n",
@@ -243,6 +263,10 @@ def tweetIdeas():
         print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
         print(openAIAnswer[:4])
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})      
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]
             print("true")
@@ -263,7 +287,11 @@ def coldEmails():
     if request.method == 'POST':
         company_name = request.form['companyName']
         title = request.form['coldEmails']
-
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+        estimated_number_of_tokens = returns_estimated_number_of_tokens_used(title+company_name)
+        if estimated_number_of_tokens > tokens["tokens"] : 
+            flash("You don't have sufficient tokens!!")
+            return redirect("/cold-emails")
         response = openai.Completion.create(
                             engine=GPT_Engine,
                             prompt="Services:\n"+title+"\nA company named "+company_name+" provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
@@ -277,6 +305,10 @@ def coldEmails():
         print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
         print(openAIAnswer[:4])
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})      
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]
             print("true")
@@ -297,7 +329,11 @@ def socialMedia():
     if request.method == 'POST':
         query = request.form['socialMedia']
         print(query)
-
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+        estimated_number_of_tokens = returns_estimated_number_of_tokens_used(query)
+        if estimated_number_of_tokens > tokens["tokens"] : 
+            flash("You don't have sufficient tokens!!")
+            return redirect("/social-media")
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                 engine = GPT_Engine,
@@ -309,6 +345,10 @@ def socialMedia():
                 presence_penalty=0
             )
         openAIAnswer = response['choices'][0]['text']
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})      
         print(openAIAnswer)
         
 
@@ -328,7 +368,11 @@ def businessPitch():
         purpose = request.form['purpose']
         language = request.form['language']
         # print(query)
-
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+        estimated_number_of_tokens = returns_estimated_number_of_tokens_used(language+purpose)
+        if estimated_number_of_tokens > tokens["tokens"] : 
+            flash("You don't have sufficient tokens!!")
+            return redirect("/code-gen")
         # prompt = 'AI Suggestions for {} are:'.format(query)
         response = openai.Completion.create(
                 engine = GPT_Engine,
@@ -341,7 +385,10 @@ def businessPitch():
             )
         openAIAnswer = response['choices'][0]['text']
         openAIAnswer = openAIAnswer.replace("\n","<br>")
-
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})      
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]
     return render_template('code-gen.html', **locals())
@@ -362,7 +409,14 @@ def prevEmail():
         print(prev_email)
         print(bullet_points)
 
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+
         if prev_email == "":
+            estimated_number_of_tokens = returns_estimated_number_of_tokens_used(prev_email+bullet_points)
+            if estimated_number_of_tokens > tokens["tokens"] : 
+                flash("You don't have sufficient tokens!!")
+                return redirect("/email-gen")
+
             response = openai.Completion.create(
                 engine = GPT_Engine,
                 prompt="Bullet Points:\n"+bullet_points+"\nWrite a reply email based on the bullet point above:\nEmail:\n",
@@ -373,6 +427,10 @@ def prevEmail():
                 presence_penalty=0
             )
         elif bullet_points =="":
+            estimated_number_of_tokens = returns_estimated_number_of_tokens_used(prev_email)
+            if estimated_number_of_tokens > tokens["tokens"] : 
+                flash("You don't have sufficient tokens!!")
+                return redirect("/email-gen")
             response = openai.Completion.create(
                 engine=GPT_Engine,
                 prompt="Previous Email:\n{prev_email}\nWrite a suitable reply to the above email:\nEmail:\n",
@@ -383,6 +441,10 @@ def prevEmail():
                 presence_penalty=0
             )
         else:
+            estimated_number_of_tokens = returns_estimated_number_of_tokens_used(prev_email+bullet_points)
+            if estimated_number_of_tokens > tokens["tokens"] : 
+                flash("You don't have sufficient tokens!!")
+                return redirect("/email-gen")
             response = openai.Completion.create(
                 engine=GPT_Engine,
                 prompt=f"Previous Email:\n{prev_email}\nBullet Points:\n{bullet_points}\nWrite a reply to the previous email based on the bullet points above:\nEmail:\n",
@@ -402,11 +464,10 @@ def prevEmail():
         #                     presence_penalty=0
         #                     )
         openAIAnswer = response['choices'][0]['text']
-
-        # tokens_used = response['usage']['total_tokens']
-
-
-
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})        
         openAIAnswer = openAIAnswer.replace("\n","<br>")
 
         if openAIAnswer[:4] == "<br>":
@@ -437,6 +498,11 @@ def videoDescription():
         # TITLE = title
         # KEYWORDS = keywords
         # prompt = 'AI Suggestions for {} are:'.format(query)
+        tokens = user_tokens.find_one({"user_id": ObjectId(session["userId"])})
+        estimated_number_of_tokens = returns_estimated_number_of_tokens_used(title+keywords)
+        if estimated_number_of_tokens > tokens["tokens"] : 
+            flash("You don't have sufficient tokens!!")
+            return redirect("/blog-article")
         response = openai.Completion.create(
                             engine=GPT_Engine,
                             prompt=f"Title:\n{title}\nKeywords:\n{keywords}\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
@@ -449,6 +515,10 @@ def videoDescription():
         openAIAnswer = response['choices'][0]['text']
         # print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
+        tokens_used = response['usage']['total_tokens']
+        user_available_tokens = tokens["tokens"]
+        remaining_tokens = max(0,user_available_tokens-tokens_used)
+        user_tokens.update_one({"_id":ObjectId(tokens["_id"])},{"$set": {"tokens" : remaining_tokens}})      
         # print(openAIAnswer[:4])
         if openAIAnswer[:4] == "<br>":
             openAIAnswer = openAIAnswer[4:]

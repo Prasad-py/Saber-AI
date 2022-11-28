@@ -9,7 +9,15 @@
     <p class="lead">
     Start generating tweet ideas with hashtags for your online social media campaigns on twitter. Create endless unique tweet ideas, no more writers block.
     </p>
-
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <h2>What is your tweet about?</h2>
 
     <form class="" action="/tweet-ideas" method="post">

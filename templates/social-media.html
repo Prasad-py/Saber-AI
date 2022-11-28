@@ -9,7 +9,15 @@
     <p class="lead">
     Looking for some creative social media advert ideas for your online campaigns on Facebook, Twitter or Instagram? We got you.
     </p>
-
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
     <h2>What is your ad campaign about?</h2>
 
     <form class="" action="/social-media" method="post">

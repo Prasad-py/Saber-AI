@@ -12,6 +12,15 @@
     </p>
 
     <!-- <h2>Enter the topic you would like to discuss.</h2> -->
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
 
     <form class="" action="/email-gen" method="post">
 

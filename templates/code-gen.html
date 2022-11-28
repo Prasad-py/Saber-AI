@@ -9,6 +9,15 @@
     <p class="lead">
       Generate Code by giving the usecase
     </p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
 
     <h2>What is your code's purpose?</h2>
 
