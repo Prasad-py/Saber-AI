@@ -36,19 +36,20 @@ def get_prompt(query_dict):
     company_name = query_dict["company_name"] if "company_name" in query_dict else None
 
     prompts_dict = {
-        "blog-article": f"Title:\n"+title+"\nKeywords:\n+"+keywords+"\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
-        "social-media": f"Subject of the Advertisement:\n"+query+"\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
-        "cold-emails": f"Services:\n"+title+"\nA company named "+company_name+" provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
-        "tweet-ideas": f"Description:\n"+title+"\nWrite a long and clever tweet for the above decription:\nTweet:\n",
+        "blog-article": f"Title:\n{title}\nKeywords:\n{keywords}\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
+        "social-media": f"Subject of the Advertisement:\n{query}\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
+        "cold-emails": f"Services:\n{title}\nA company named {company_name} provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
+        "tweet-ideas": f"Description:\n{title}\nWrite a long and clever tweet for the above decription:\nTweet:\n",
         #     "email-gen": 
-        "code-gen": f"Usecase of the Code:\n"+purpose+"\nWrite a "+language+" function for the above usecase:\nCode:\n",
+        "code-gen": f"Usecase of the Code:\n{purpose}\nWrite a {language} function for the above usecase:\nCode:\n",
     }
+    
     return prompts_dict[service]
 
 def get_gpt3_response(query_dict):
     raw_response = openai.Completion.create(
                 engine=GPT_Engine,
-                prompt= get_prompt(query_dict)
+                prompt= get_prompt(query_dict),
                 temperature=0.7,
                 max_tokens=500,
                 top_p=1,
@@ -282,15 +283,11 @@ def tweetIdeas():
         if estimated_number_of_tokens > tokens["tokens"] : 
             flash("You don't have sufficient tokens!!")
             return redirect("/tweet-ideas")
-        response = openai.Completion.create(
-                            engine=GPT_Engine,
-                            prompt="Description:\n"+title+"\nWrite a long and clever tweet for the above decription:\nTweet:\n",
-                            temperature=0.5,
-                            max_tokens=300,
-                            top_p=1,
-                            frequency_penalty=0,
-                            presence_penalty=0
-                            )
+        query_dict = {
+            "service": "tweet-ideas",
+            "title": title,
+        } 
+        response = get_gpt3_response(query_dict)
         openAIAnswer = response['choices'][0]['text']
         print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
@@ -324,15 +321,12 @@ def coldEmails():
         if estimated_number_of_tokens > tokens["tokens"] : 
             flash("You don't have sufficient tokens!!")
             return redirect("/cold-emails")
-        response = openai.Completion.create(
-                            engine=GPT_Engine,
-                            prompt="Services:\n"+title+"\nA company named "+company_name+" provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
-                            temperature=0.5,
-                            max_tokens=300,
-                            top_p=1,
-                            frequency_penalty=0,
-                            presence_penalty=0
-                            )
+        query_dict = {
+            "service": "cold-emails",
+            "title": title,
+            "company_name": company_name,
+        }
+        response = get_gpt3_response(query_dict)
         openAIAnswer = response['choices'][0]['text']
         print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
@@ -367,15 +361,11 @@ def socialMedia():
             flash("You don't have sufficient tokens!!")
             return redirect("/social-media")
         # prompt = 'AI Suggestions for {} are:'.format(query)
-        response = openai.Completion.create(
-                engine = GPT_Engine,
-                prompt="Subject of the Advertisement:\n"+query+"\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
-                temperature=0.7,
-                max_tokens=500,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0
-            )
+        query_dict = {
+            "service": "social-media",
+            "query": query ,
+        }
+        response = get_gpt3_response(query_dict)
         openAIAnswer = response['choices'][0]['text']
         tokens_used = response['usage']['total_tokens']
         user_available_tokens = tokens["tokens"]
@@ -406,15 +396,12 @@ def businessPitch():
             flash("You don't have sufficient tokens!!")
             return redirect("/code-gen")
         # prompt = 'AI Suggestions for {} are:'.format(query)
-        response = openai.Completion.create(
-                engine = GPT_Engine,
-                prompt="Usecase of the Code:\n"+purpose+"\nWrite a "+language+" function for the above usecase:\nCode:\n",
-                temperature=0.7,
-                max_tokens=500,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0
-            )
+        query_dict = {
+            "service": "code-gen",
+            "purpose": purpose,
+            "language": language
+        }
+        response = get_gpt3_response(query_dict)
         openAIAnswer = response['choices'][0]['text']
         openAIAnswer = openAIAnswer.replace("\n","<br>")
         tokens_used = response['usage']['total_tokens']
@@ -535,15 +522,12 @@ def videoDescription():
         if estimated_number_of_tokens > tokens["tokens"] : 
             flash("You don't have sufficient tokens!!")
             return redirect("/blog-article")
-        response = openai.Completion.create(
-                            engine=GPT_Engine,
-                            prompt=f"Title:\n{title}\nKeywords:\n{keywords}\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
-                            temperature=0.5,
-                            max_tokens=700,
-                            top_p=1,
-                            frequency_penalty=0,
-                            presence_penalty=0
-                            )
+        query_dict = {
+            "service": "blog-article",
+            "title": title,
+            "keywords": keywords
+        }
+        response = get_gpt3_response(query_dict)
         openAIAnswer = response['choices'][0]['text']
         # print(openAIAnswer)
         openAIAnswer = openAIAnswer.replace("\n","<br>")
