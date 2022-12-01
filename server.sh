@@ -2,8 +2,8 @@
 
 export RECREATE=false
 export DIRNAME=$1 # Path to the folder containing Saber-AI 
-export VENV_PATH="$DIRNAME\saber-venv"
-export REQUIREMENTS="$DIRNAME\Saber-AI\requirements.txt"
+export VENV_PATH="$DIRNAME/saber-venv"
+export REQUIREMENTS="$DIRNAME/Saber-AI/requirements.txt"
 
 if [[ $RECREATE == true ]]
 then
@@ -12,9 +12,9 @@ fi
 
 if ! [[ -d $VENV_PATH ]]
 then
-    source "$DIRNAME\Saber-AI\create_venv.sh"
+    source "$DIRNAME/Saber-AI/create_venv.sh"
 fi
 
-source "$DIRNAME\saber-venv\Scripts\activate"
+source "$DIRNAME/saber-venv/Scripts/activate"
 
-python "$DIRNAME\Saber-AI\run.py"
+python "$DIRNAME/Saber-AI/run.py"
