@@ -1,8 +1,9 @@
 #!/bin/bash
 
 export RECREATE=false
-export DIRNAME="D:\Saber"
+export DIRNAME=$1 # Path to the folder containing Saber-AI 
 export VENV_PATH="$DIRNAME\saber-venv"
+export REQUIREMENTS="$DIRNAME\Saber-AI\requirements.txt"
 
 if [[ $RECREATE == true ]]
 then
@@ -16,4 +17,4 @@ fi
 
 source "$DIRNAME\saber-venv\Scripts\activate"
 
-python "$DIRNAME\Saber\Saber-AI\run.py"
+python "$DIRNAME\Saber-AI\run.py"
