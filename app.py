@@ -63,7 +63,7 @@ def index():
     if "email" not in session: 
         return redirect("/login")
 
-    if session["isVerified"] == False:
+    if "isVerified" in session and session["isVerified"] == False:
         return redirect("/verifyEmail")
 
     return render_template('index.html', **locals())
