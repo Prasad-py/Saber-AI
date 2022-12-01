@@ -15,7 +15,7 @@ from bson.objectid import ObjectId
 
 
 openai.api_key = config.OPENAI_API_KEY
-GPT_Engine = "text-davinci-002"
+GPT_Engine = "text-davinci-003"
 
 #Mongodb configuration
 client = pymongo.MongoClient(config.MONGO_URL)
@@ -23,7 +23,39 @@ db = client.get_database('saberAI')
 users = db.users
 user_tokens = db.user_tokens
 
+    
+def get_prompt(query_dict):
+    service = query_dict["service"] if "service" in query_dict else None
+    title = query_dict["title"] if "title" in query_dict else None
+    keywords = query_dict["keywords"] if "keywords" in query_dict else None
+    # prev_email = query_dict["prev_email"] if "prev_email" in query_dict else None
+    # bullet_points = query_dict["bullet_points"] if "bullet_points" in query_dict else None
+    query = query_dict["query"] if "query" in query_dict else None
+    purpose = query_dict["purpose"] if "purpose" in query_dict else None
+    language = query_dict["language"] if "language" in query_dict else None
+    company_name = query_dict["company_name"] if "company_name" in query_dict else None
 
+    prompts_dict = {
+        "blog-article": f"Title:\n"+title+"\nKeywords:\n+"+keywords+"\nWrite a long blog article for the above title using the given keywords:\nArticle:\n",
+        "social-media": f"Subject of the Advertisement:\n"+query+"\nWrite a long and clever Advertisement on the given subject:\nAd:\n",
+        "cold-emails": f"Services:\n"+title+"\nA company named "+company_name+" provides the above services.\nWrite a cold email to advertise its services:\nEmail:\n",
+        "tweet-ideas": f"Description:\n"+title+"\nWrite a long and clever tweet for the above decription:\nTweet:\n",
+        #     "email-gen": 
+        "code-gen": f"Usecase of the Code:\n"+purpose+"\nWrite a "+language+" function for the above usecase:\nCode:\n",
+    }
+    return prompts_dict[service]
+
+def get_gpt3_response(query_dict):
+    raw_response = openai.Completion.create(
+                engine=GPT_Engine,
+                prompt= get_prompt(query_dict)
+                temperature=0.7,
+                max_tokens=500,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+            )
+    return raw_response
 
 
 def page_not_found(e):
@@ -194,43 +226,43 @@ def logout():
     return redirect("/login")
 
 
-@app.route('/product-description', methods=["GET", "POST"])
-def productDescription():
+# @app.route('/product-description', methods=["GET", "POST"])
+# def productDescription():
 
-    if "email" not in session: 
-        return redirect("/login")
+#     if "email" not in session: 
+#         return redirect("/login")
     
-    if session["isVerified"] == False:
-        return redirect("/verifyEmail")
+#     if session["isVerified"] == False:
+#         return redirect("/verifyEmail")
 
-    if request.method == 'POST':
-        query = request.form['productDescription']
-        print(query)
+#     if request.method == 'POST':
+#         query = request.form['productDescription']
+#         print(query)
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+#         prompt = 'AI Suggestions for {} are:'.format(query)
+#         openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
 
-    return render_template('product-description.html', **locals())
+#     return render_template('product-description.html', **locals())
 
 
 
-@app.route('/job-description', methods=["GET", "POST"])
-def jobDescription():
+# @app.route('/job-description', methods=["GET", "POST"])
+# def jobDescription():
 
-    if "email" not in session: 
-        return redirect("/login")
+#     if "email" not in session: 
+#         return redirect("/login")
     
-    if session["isVerified"] == False:
-        return redirect("/verifyEmail")
+#     if session["isVerified"] == False:
+#         return redirect("/verifyEmail")
 
-    if request.method == 'POST':
-        query = request.form['jobDescription']
-        print(query)
+#     if request.method == 'POST':
+#         query = request.form['jobDescription']
+#         print(query)
 
-        prompt = 'AI Suggestions for {} are:'.format(query)
-        openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+#         prompt = 'AI Suggestions for {} are:'.format(query)
+#         openAIAnswer = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
 
-    return render_template('job-description.html', **locals())
+#     return render_template('job-description.html', **locals())
 
 
 
