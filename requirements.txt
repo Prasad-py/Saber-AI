@@ -1,5 +1,6 @@
 # asgiref==3.5.2
 bcrypt
+pyopenssl
 # boto3==1.24.42
 # botocore==1.27.52
 # certifi==2021.10.8
