@@ -16,9 +16,9 @@ echo "Creating Virtual Environment at $VENV_PATH"
 
 rm -rf $VENV_PATH
 
-python -m venv $VENV_PATH
+python3 -m venv $VENV_PATH
 source "$DIRNAME/saber-venv/Scripts/activate"
-python -m pip install --upgrade pip
-pip install -r "$DIRNAME/Saber-AI/requirements.txt"
+python3 -m pip install --upgrade pip
+pip3 install -r "$DIRNAME/Saber-AI/requirements.txt"
 
-pip freeze
+pip3 freeze
