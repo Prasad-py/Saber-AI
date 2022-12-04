@@ -13,7 +13,7 @@ config = {
 }
 
 ## Enter your Open API Key here
-OPENAI_API_KEY = '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'
+OPENAI_API_KEY = "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"
 
 
 FIREBASE_CONFIG = {
