@@ -3,7 +3,7 @@ from urllib import response
 from flask import render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
 from saberai import app,db,mail, GPT_Engine, openai
-from saberai.helperFunctions import get_gpt3_response, generate_code, returns_estimated_number_of_tokens_used, parse_json
+from saberai.helperFunctions import get_gpt3_response, generate_code, returns_estimated_number_of_tokens_used, parse_json, get_subscriptions
 import bcrypt
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -150,6 +150,19 @@ def logout():
     if "email" in session:
         session.pop("email", None)
     return redirect("/login")
+
+@app.route("/payment")
+def payment():
+    if "email" not in session: 
+        return redirect("/login")
+    
+    if session["isVerified"] == False:
+        return redirect("/verifyEmail")
+
+    subscriptions = get_subscriptions()
+
+    return render_template("payment.html", subscriptions=subscriptions)
+
 
 # @app.route('/product-description', methods=["GET", "POST"])
 # def productDescription():

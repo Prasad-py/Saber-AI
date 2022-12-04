@@ -1,0 +1,144 @@
+{% extends 'includes/layout.html' %}
+
+
+{% block body %}
+
+<style>
+  #order-button1 {
+    outline: none !important;
+    border: none !important;
+    border-bottom-left-radius: 15px !important;
+    border-bottom-right-radius: 15px !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    background-color: #FF7900;
+    font-size: 1.5rem;
+    font-weight: 500;
+    border: 0px;
+    outline: 0px;
+  }
+
+  #order-button1:hover {
+    background-color: #b65501;
+  }
+
+  #order-button2 {
+    outline: none !important;
+    border: none !important;
+    border-bottom-left-radius: 15px !important;
+    border-bottom-right-radius: 15px !important;
+    border-top-left-radius: 0px !important;
+    border-top-right-radius: 0px !important;
+    background-color: #7f28a7;
+    font-size: 1.5rem;
+    font-weight: 500;
+    border: 0px;
+    outline: 0px;
+  }
+
+  #order-button2:hover {
+    background-color: #561b72;
+  }
+</style>
+
+<main class="container ">
+  <br>
+  <div class="row p-5 mt-5">
+    <div class="col-lg-4 order-sm-12">
+      <div class="p-1"></div>
+      <div class="row" style="font-size: 0.95rem;">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-9" style="width: 100% !important; padding: 0px; border: 0px;">
+          <div>
+            <center style=" color: #7f28a7;">
+              <div style="font-size: 3.0rem; font-weight: 600;">&#8377; 2 for Identification</div>
+              <div style="font-size: 1.3rem; font-weight: 500;">XYZ Months Subscription</div>
+              <div style="font-size: 2.0rem; font-weight: 600;">{{subscriptions[1].title}}</div>
+            </center>
+            <div class="p-2"></div>
+          </div>
+          <div class="card" style="width: 100% !important; padding: 0px; border: 0px;">
+            <div class="inner-text text-center p-2 mb-1 abcd" style="color: #7f28a7;">FREE TIER</div>
+            {% for x in subscriptions[0].includes  %}
+            <div class="inner-text"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>{{ x }}</div>
+            {% endfor %}
+            <hr>
+            <div style="font-size: 1.2rem; font-weight: 500; color: #7f28a7;" class="text-center">Life Time Access</div>
+            <div class="p-2"></div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 1</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 2</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 3</div>
+            <div class="p-3"></div>
+            <div id="order-button2" class="btn btn-success p-3">Enroll Now</div>
+          </div>
+        </div>
+        <div class="col-lg-2"></div>
+      </div>
+    </div>
+    <div class="col-lg-4 order-sm-12">
+      <div class="p-1"></div>
+      <div class="row" style="font-size: 0.95rem;">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-9" style="width: 100% !important; padding: 0px; border: 0px;">
+          <div>
+            <center style=" color: #FF7900;">
+              <div style="font-size: 3.0rem; font-weight: 600;">&#8377; 2 for Identification</div>
+              <div style="font-size: 1.3rem; font-weight: 500;">XYZ Months Subscription</div>
+              <div style="font-size: 2.0rem; font-weight: 600;">{{subscriptions[1].title}}</div>
+            </center>
+            <div class="p-2"></div>
+          </div>
+          <div class="card" style="width: 100% !important; padding: 0px; border: 0px;">
+            <div class="inner-text text-center p-2 mb-1 abcd" style="color: #FF7900;">FREE TIER</div>
+            {% for x in subscriptions[1].includes  %}
+            <div class="inner-text"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>{{ x }}</div>
+            {% endfor %}
+            <hr>
+            <div style="font-size: 1.2rem; font-weight: 500; color: #FF7900;" class="text-center">Life Time Access
+            </div>
+            <div class="p-2"></div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 1</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 2</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 3</div>
+            <div class="p-3"></div>
+            <div id="order-button2" class="btn btn-success p-3">Enroll Now</div>
+          </div>
+        </div>
+        <div class="col-lg-2"></div>
+      </div>
+    </div>
+    <div class="col-lg-4 order-sm-12">
+      <div class="p-1"></div>
+      <div class="row" style="font-size: 0.95rem;">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-9" style="width: 100% !important; padding: 0px; border: 0px;">
+          <div>
+            <center style=" color: #0c6d46;">
+              <div style="font-size: 3.0rem; font-weight: 600;">&#8377; 2 for Identification</div>
+              <div style="font-size: 1.3rem; font-weight: 500;">XYZ Months Subscription</div>
+              <div style="font-size: 2.0rem; font-weight: 600;">{{subscriptions[2].title}} </div>
+            </center>
+            <div class="p-2"></div>
+          </div>
+          <div class="card" style="width: 100% !important; padding: 0px; border: 0px;">
+            <div class="inner-text text-center p-2 mb-1 abcd" style="color: #0c6d46;">FREE TIER</div>
+            {% for x in subscriptions[2].includes  %}
+            <div class="inner-text"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>{{ x }}</div>
+            {% endfor %}
+            <hr>
+            <div style="font-size: 1.2rem; font-weight: 500; color: #0c6d46;" class="text-center">Life Time Access
+            </div>
+            <div class="p-2"></div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 1</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 2</div>
+            <div class="inner-text text-center"><i class="fas fa-check okay mb-2 ml-lg-4 ml-3 mr-3"></i>Point 3</div>
+            <div class="p-3"></div>
+            <div id="order-button2" class="btn btn-success p-3">Enroll Now</div>
+          </div>
+        </div>
+        <div class="col-lg-2"></div>
+      </div>
+    </div>
+
+</main>
+{% endblock %}

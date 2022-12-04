@@ -49,3 +49,24 @@ def returns_estimated_number_of_tokens_used(text_input):
 
 def parse_json(data):
     return json.loads(json_util.dumps(data))
+
+def get_subscriptions():
+    freeTierPlan = {
+        "title": "Saber's Free Plan Verification",
+        "includes": ["We charge a fee of Rs.2 from your account for verification of your identity.",
+                    "This amount will be refunded back to your account in the next 48 hrs. ",
+                    "This step is done to weed out the Bots."]
+    }
+    saberToothPlan = {
+        "title": "Saber's Sabertooth Plan",
+        "includes": ["Access to all tokens.",
+                    "30,000 tokens on a monthly basis."]
+    }
+    mammothPlan = {
+        "title": "Saber's Mammoth Plan",
+        "includes": ["Unlimited Access to all Services.",
+                    "Unlimited number of tokens to use.*",
+                    "(Max limited to 1 lakh tokens)"]
+    }
+    subscriptions = [freeTierPlan,saberToothPlan,mammothPlan]
+    return subscriptions
