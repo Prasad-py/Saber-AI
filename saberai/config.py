@@ -25,7 +25,17 @@ FIREBASE_CONFIG = {
     'messagingSenderId': "221117736160",
     'appId': "1:221117736160:web:67edce645aab1f37559c85",
     'measurementId': "G-N6C3RD35G1",
-    'databaseURL' : 'https://saberdemo-6e885.firebaseio.com/'
+    'databaseURL' : 'https://saberdemo-6e885.firebaseio.com/',
+}
+
+# RAZORPAY_CONFIG = {
+#     'razorpayKey': 'rzp_live_tIV0KgA5JaQyMd',
+#     'razorpaySecret': '8BVl6hcEO7LdxqLESl3b4hvw'
+# }
+
+RAZORPAY_CONFIG = {
+    'razorpayKey': 'rzp_test_UJJjpGLL14Eki4',
+    'razorpaySecret': 'QEgmCqVZVVAuGzL3saBEDvaH'
 }
 
 MONGO_URL = 'mongodb://localhost:27017'

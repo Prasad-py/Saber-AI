@@ -2,12 +2,15 @@ from distutils.log import error
 from urllib import response
 from flask import render_template, request, redirect, url_for, session, flash
 from flask_mail import Mail, Message
-from saberai import app,db,mail, GPT_Engine, openai
+from saberai import app,db,mail, GPT_Engine, openai, client
 from saberai.helperFunctions import get_gpt3_response, generate_code, returns_estimated_number_of_tokens_used, parse_json, get_subscriptions
 import bcrypt
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from bson.objectid import ObjectId
+import shortuuid
+import hashlib
+import hmac
 
 users = db.users
 user_tokens = db.user_tokens
@@ -151,7 +154,8 @@ def logout():
         session.pop("email", None)
     return redirect("/login")
 
-@app.route("/payment")
+
+@app.route("/payment", methods=["GET","POST"])
 def payment():
     if "email" not in session: 
         return redirect("/login")
@@ -159,10 +163,42 @@ def payment():
     if session["isVerified"] == False:
         return redirect("/verifyEmail")
 
+    if request.method == "POST":
+        amount = request.json['amount']
+        data = { "amount": amount, "currency": "INR", "receipt": shortuuid.uuid() }
+        payment = client.order.create(data)
+        
+        return {
+            "success": True,
+            "order_id": payment['id'],
+            "currency": payment['currency'],
+            "amount": payment['amount'],
+        }
+
     subscriptions = get_subscriptions()
 
     return render_template("payment.html", subscriptions=subscriptions)
 
+
+@app.route('/payment/verify', methods=["POST"])
+def verifyPayment():
+    razorpay_order_id, razorpay_payment_id, razorpay_signature = request.json['razorpay_order_id'], request.json['razorpay_payment_id'], request.json['razorpay_signature']
+    if razorpay_order_id is None or razorpay_payment_id is None or razorpay_signature is None:
+        return{ 'success': False, 'msg': 'Please fill in all required fields'}
+    
+    verif_error_msg = 'Payment Verification failed.\nPlease email us your details in case you feel that there is any error.';
+    generated_signature = hmac.new(
+        bytes('QEgmCqVZVVAuGzL3saBEDvaH' , 'latin-1'),
+        msg = bytes(f"{razorpay_order_id}|{razorpay_payment_id}" , 'latin-1'),
+        digestmod=hashlib.sha256
+    ).hexdigest().upper()
+
+    print(generated_signature,razorpay_signature.upper())
+
+    if (generated_signature == razorpay_signature.upper()):
+        return {"success":True}
+    else:
+        return { "success": False, "msg": "An error occured while processing your payment.\nPlease email us your details, and we will look into it." }  
 
 # @app.route('/product-description', methods=["GET", "POST"])
 # def productDescription():
