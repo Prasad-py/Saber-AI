@@ -1,8 +1,8 @@
 from distutils.log import error
 from urllib import response
-from flask import render_template, request, redirect, url_for, session, flash
+from flask import render_template, request, redirect, url_for, session, flash, abort
 from flask_mail import Mail, Message
-from saberai import app,db,mail, GPT_Engine, openai, client
+from saberai import app,db,mail, GPT_Engine, openai, client, client_secrets_file, GOOGLE_CLIENT_ID
 from saberai.helperFunctions import get_gpt3_response, generate_code, returns_estimated_number_of_tokens_used, parse_json, get_subscriptions
 import bcrypt
 from datetime import datetime
@@ -11,9 +11,20 @@ from bson.objectid import ObjectId
 import shortuuid
 import hashlib
 import hmac
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+from pip._vendor import cachecontrol
+import google.auth.transport.requests
+import requests
 
 users = db.users
 user_tokens = db.user_tokens
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file=client_secrets_file,
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid"],
+    redirect_uri="http://localhost:8080/callback"
+)
 
 def page_not_found(e):
   return render_template('404.html'), 404
@@ -40,6 +51,7 @@ def signup():
         
         email = request.form["email"]
         password = request.form["password"]
+        name=request.form['name']
         confirmPassword = request.form["confirmPassword"]
 
         if email is None or password is None or len(password)<8:
@@ -58,7 +70,7 @@ def signup():
         
         hashedPassword = bcrypt.hashpw(password.encode('utf-8'),bcrypt.gensalt())
         otp = generate_code()
-        user_input = {"email": email, "password": hashedPassword, "isVerified": False, "otp": otp}
+        user_input = {"email": email, "password": hashedPassword, "isVerified": False, "otp": otp,'name': name,'gauth': False}
         users.insert_one(user_input)
         user = users.find_one({"email" : email})
         date_after_month = datetime.today()+ relativedelta(months=1)
@@ -109,6 +121,12 @@ def verifyEmail():
 
     return render_template("verifyEmail.html")
 
+@app.route("/glogin")
+def glogin():
+    authorization_url, state = flow.authorization_url()
+    session["state"] = state
+    return redirect(authorization_url)
+
 #login route
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -146,12 +164,56 @@ def login():
 
     return render_template("login.html")
 
+
+@app.route("/callback")
+def callback():
+    flow.fetch_token(authorization_response=request.url)
+
+    if not session["state"] == request.args["state"]:
+        abort(500)  # State does not match!
+
+    credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
+
+    
+
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID,
+        clock_skew_in_seconds=1
+    )
+
+    email = id_info.get('email')
+    name = id_info.get('name')
+
+    user_found = users.find_one({"email" : email})
+    if user_found == None:
+        user_input = {"email": email, "isVerified": True,'otp': '','gauth': True,'name': name}
+        users.insert_one(user_input)
+        user = users.find_one({"email" : email})
+        date_after_month = datetime.today()+ relativedelta(months=1)
+        token_input = {"user_id": user["_id"],"tokens": 1000,"expiry":date_after_month.strftime('%d/%m/%Y'),"plan": "free"}
+        user_tokens.insert_one(token_input)
+        session["userId"] = str(user["_id"])
+    else :
+        session["userId"] = str(user_found["_id"])
+
+    print("--------------------", id_info)
+    session['email'] = id_info.get("email")
+    session['isVerified'] = True
+    session["google_id"] = id_info.get("sub")
+    return redirect("/")
+
+
 #logout route
 @app.route("/logout")
 def logout():
     #remove the token setting the user to None
     if "email" in session:
-        session.pop("email", None)
+        session.clear()
     return redirect("/login")
 
 
@@ -176,8 +238,10 @@ def payment():
         }
 
     subscriptions = get_subscriptions()
+    email = session['email']
+    user_found = users.find_one({"email" : email})
 
-    return render_template("payment.html", subscriptions=subscriptions)
+    return render_template("payment.html", subscriptions=subscriptions, email=email, name=user_found['name'])
 
 
 @app.route('/payment/verify', methods=["POST"])

@@ -212,9 +212,9 @@
             xmlHttp.send(JSON.stringify(Object.assign(razorpay_response, response)));
           },
           "prefill": {
-            "name": "<%= user_name %>",
-            "email": "<%= user_email %>",
-            "contact": "<%= user_contact %>"
+            "name": "{{ name }}",
+            "email": "{{ email }}",
+            "contact": ""
           },
           "theme": {
             "color": themeColor
@@ -232,10 +232,13 @@
     }));
   }
   document.getElementById('order-button1').onclick = function (event) {
-    onClickOrder(event, 49900, "All-In-One Monthly Course Package", "Monthly", "#FF7900");
+    onClickOrder(event, 49900, "All-In-One Monthly Course Package", "Monthly", "#7f28a7");
   }
   document.getElementById('order-button2').onclick = function (event) {
-    onClickOrder(event, 179400, "All-In-One Premium Course Package", "Premium", "#7f28a7");
+    onClickOrder(event, 179400, "All-In-One Premium Course Package", "Premium", "#FF7900");
+  }
+  document.getElementById('order-button3').onclick = function (event) {
+    onClickOrder(event, 179400, "All-In-One Premium Course Package", "Legendary", "#7f28a7");
   }
 </script>
 

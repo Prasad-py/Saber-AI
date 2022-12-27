@@ -39,3 +39,5 @@ RAZORPAY_CONFIG = {
 }
 
 MONGO_URL = 'mongodb://localhost:27017'
+
+GOOGLE_CLIENT_ID = '964331532997-d9leuglhn22abhbm1sjggp29hoiglg5g.apps.googleusercontent.com'
