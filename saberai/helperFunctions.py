@@ -1,3 +1,4 @@
+from http.client import REQUEST_URI_TOO_LONG
 import random
 import json
 from bson import json_util
@@ -56,17 +57,42 @@ def get_subscriptions():
         "includes": ["We charge a fee of Rs.2 from your account for verification of your identity.",
                     "This amount will be refunded back to your account in the next 48 hrs. ",
                     "This step is done to weed out the Bots."]
+        "price": 0,
+        "indian_price": 0,
+        "num_tokens": 10000,
+        "refreshes_every_month": False
     }
     saberToothPlan = {
         "title": "Saber's Sabertooth Plan",
-        "includes": ["Access to all tokens.",
-                    "30,000 tokens on a monthly basis."]
+        "includes": ["Access to all services",
+                    "30,000 tokens on a monthly basis"]
+        "price": 15,
+        "indian_price": 1200,
+        "num_tokens": 30000,
+        "refreshes_every_month": True
     }
     mammothPlan = {
         "title": "Saber's Mammoth Plan",
-        "includes": ["Unlimited Access to all Services.",
-                    "Unlimited number of tokens to use.*",
-                    "(Max limited to 1 lakh tokens)"]
+        "includes": ["Unlimited Access to all Services",
+                    "Unlimited number of tokens to use *",
+                    "(Limited to 100k tokens monthly)"]
+        "price": 25,
+        "indian_price": 2000,
+        "num_tokens": 100000,
+        "refreshes_every_month": True
     }
     subscriptions = [freeTierPlan,saberToothPlan,mammothPlan]
     return subscriptions
+
+def add_tokens():
+    add_5000_tokens = {
+        "title": "Add 5000 tokens to my Existing Plan",
+        "includes": ["Purchase 5000 additional tokens for $5"
+                    "Increases your remaining tokens on current plan by 5000",
+                    ]
+        "price": 5,
+        "indian_price": 400,
+        "num_tokens": 5000,
+        "refreshes_every_month": False
+    }
+    return add_5000_tokens
