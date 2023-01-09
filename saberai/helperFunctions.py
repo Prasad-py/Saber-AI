@@ -56,7 +56,7 @@ def get_subscriptions():
         "title": "Saber's Free Plan Verification",
         "includes": ["We charge a fee of Rs.2 from your account for verification of your identity.",
                     "This amount will be refunded back to your account in the next 48 hrs. ",
-                    "This step is done to weed out the Bots."]
+                    "This step is done to weed out the Bots."],
         "price": 0,
         "indian_price": 0,
         "num_tokens": 10000,
@@ -65,7 +65,7 @@ def get_subscriptions():
     saberToothPlan = {
         "title": "Saber's Sabertooth Plan",
         "includes": ["Access to all services",
-                    "30,000 tokens on a monthly basis"]
+                    "30,000 tokens on a monthly basis"],
         "price": 15,
         "indian_price": 1200,
         "num_tokens": 30000,
@@ -75,7 +75,7 @@ def get_subscriptions():
         "title": "Saber's Mammoth Plan",
         "includes": ["Unlimited Access to all Services",
                     "Unlimited number of tokens to use *",
-                    "(Limited to 100k tokens monthly)"]
+                    "(Limited to 100k tokens monthly)"],
         "price": 25,
         "indian_price": 2000,
         "num_tokens": 100000,
@@ -89,7 +89,7 @@ def add_tokens():
         "title": "Add 5000 tokens to my Existing Plan",
         "includes": ["Purchase 5000 additional tokens for $5"
                     "Increases your remaining tokens on current plan by 5000",
-                    ]
+                    ],
         "price": 5,
         "indian_price": 400,
         "num_tokens": 5000,
