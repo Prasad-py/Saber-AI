@@ -34,3 +34,4 @@ client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "goauth.json")
 client = razorpay.Client(auth=(config.RAZORPAY_CONFIG['razorpayKey'], config.RAZORPAY_CONFIG['razorpaySecret']))
 
 from saberai import routes
+from saberai import restapis
