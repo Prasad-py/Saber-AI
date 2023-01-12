@@ -12,8 +12,10 @@ config = {
     'production': DevelopmentConfig
 }
 
+SECRET_KEY='this-is-a-super-secret-key'
+
 ## Enter your Open API Key here
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 
 
 FIREBASE_CONFIG = {
