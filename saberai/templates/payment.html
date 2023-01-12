@@ -186,7 +186,8 @@
           "name": "Saber AI",
           "description": description,
           "image": "/favicon.ico",
-          "order_id": response.order_id,
+          "subscription_id": response.subscription_id,
+          // "order_id": response.order_id,
           "handler": function (razorpay_response) {
             const xmlHttp = new XMLHttpRequest();
             xmlHttp.onreadystatechange = function (res) {

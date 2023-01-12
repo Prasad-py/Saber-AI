@@ -229,9 +229,20 @@ def payment():
         amount = request.json['amount']
         data = { "amount": amount, "currency": "INR", "receipt": shortuuid.uuid() }
         payment = client.order.create(data)
+        # payment = client.subscription.create({
+        #     "plan_id": "plan_KxgXcWB7vPTvS4",
+        #     "customer_notify": 1,
+        #     "quantity": 1,
+        #     "total_count": 12,
+        #     "notes": {
+        #         "key1": "value3",
+        #         "key2": "value2"
+        #     }
+        # })
         
         return {
             "success": True,
+            # "subscription_id": payment['id']
             "order_id": payment['id'],
             "currency": payment['currency'],
             "amount": payment['amount'],
